@@ -23,4 +23,18 @@ async fn main() {
     let opt = warp::path::param::<String>()
         .map(Some)
         .or_else(|_| async { Ok::<(Option<String>,), std::convert::Infallible>((None,)) });
+
+    let hello = warp::path("hello")
+        .and(opt)
+        .and(warp::path::end())
+        .map(|name: Option<String>| {
+            format!("Hello,{}!", name.unwrap_or_else(|| "world".to_string()))
+        });
+
+    let chat = warp::path("ws")
+        .and(warp::ws())
+        .and(users)
+        .map(|ws: warp::ws::Ws, users| ws.on_upgrade(move |socket| connect(socket, users)));
 }
+
+async fn connect(ws: WebSocket, users: Users) {}
