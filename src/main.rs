@@ -60,9 +60,9 @@ async fn connect(ws: WebSocket, users: Users) {
     println!("welcome{}", my_id);
 
     let (user_tx, mut user_rx) = ws.split();
-
+    println!("{:?}", user_tx);
     let (tx, rx) = mpsc::unbounded_channel();
-
+    println!("{:?}", tx);
     let rx = UnboundedReceiverStream::new(rx);
 
     tokio::spawn(rx.forward(user_tx));
@@ -75,6 +75,7 @@ async fn connect(ws: WebSocket, users: Users) {
     disconnect(my_id, &users).await;
 }
 async fn broadcast_msg(msg: Message, users: &Users) {
+    println!("{:?}", msg);
     if let Ok(_) = msg.to_str() {
         for (&_uid, tx) in users.read().await.iter() {
             tx.send(Ok(msg.clone())).expect("Failed")
